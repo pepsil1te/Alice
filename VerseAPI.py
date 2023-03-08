@@ -1,12 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 from data.Verse import Verse
+from duckduckgo_search import ddg
 
 class WebScaper():
-    def Search(query):
+    def GetVerseById(queryId):
         try:
             request = requests.get(
-            f'https://ilibrary.ru/text/{query}/p.1/index.html')
+            f'https://ilibrary.ru/text/{queryId}/p.1/index.html')
             soup = BeautifulSoup(request.content, 'html.parser')
             fullTitle = str(soup.find('title'))[7:-8]
             if fullTitle:
@@ -19,5 +20,43 @@ class WebScaper():
             else:
                 return "Простите, но такого стихотворения нет в базе."
         except requests.exceptions.InvalidURL:
-            print("Неверно указан адрес сервера")
+            return "Неверно указан адрес сервера"
 
+    def SearchForId(queryText):
+        results = ddg(queryText, region='ru-ru', safesearch='Off')
+        verses = []
+        for result in results:
+            if 'ilibrary.ru' in result['href']:
+                verses.append(int(result['href'].split('/')[4]))
+        if verses:
+            if len(verses) == 1:
+                return verses[0]
+            else:
+                uniqueVerses = [verses[0]]
+                for i in range (1, len(verses)):
+                    if verses[i] != verses[i - 1]:
+                        uniqueVerses.append(verses[i])
+                if len(uniqueVerses) > 1:
+                    return uniqueVerses
+                else:
+                    return uniqueVerses[0]
+        else:
+            return "Простите, стихотворение не найдено, пожалуйста, повторите запрос"
+    
+    def GetVerseByText(queryText):
+        verseId = WebScaper.SearchForId(queryText)
+        if isinstance(verseId, int):
+            return WebScaper.GetVerseById(verseId)
+        else:
+            return verseId
+
+
+verseRequest = WebScaper.GetVerseByText(input())
+if isinstance(verseRequest, Verse):
+    print(verseRequest)
+elif isinstance(verseRequest, list):
+    for verseId in verseRequest:
+        verse = WebScaper.GetVerseById(verseId)
+        print(f"{verse.author} {verse.title}")
+else:
+    print(f"Error: {verseRequest}")
