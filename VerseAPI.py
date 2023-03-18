@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-from data.Verse import Verse
 from duckduckgo_search import ddg
+from data.Verse import Verse
+from textFormatter import TextFormatter
 
 class WebScaper():
     def GetVerseById(queryId):
@@ -14,8 +15,16 @@ class WebScaper():
                 author = '. '.join(fullTitle.split('. ')[0:3])
                 title = '. '.join(fullTitle.split('. ')[3:-1])
                 text = []
-                for string in soup.find_all('span', class_="vl"):
-                    text.append(str(string).split('<span class="i1"></span>')[1].split('<span class="i2">')[0].strip())
+                for p in soup.find_all('span', class_="p"):
+                    paragraph = []
+                    for string in str(p).split('<span class="vl">')[1:]:
+                        line = str(string).split(
+                            '<span class="i1"></span>')[1].split('<span class="i2">')[0].strip()
+                        if line:
+                            paragraph.append(line)
+                    if paragraph:
+                        text.append(paragraph)
+                text = TextFormatter.removeBrackets(text)
                 return Verse(author, title, text)
             else:
                 return "Простите, но такого стихотворения нет в базе."
@@ -52,11 +61,4 @@ class WebScaper():
 
 
 verseRequest = WebScaper.GetVerseByText(input())
-if isinstance(verseRequest, Verse):
-    print(verseRequest)
-elif isinstance(verseRequest, list):
-    for verseId in verseRequest:
-        verse = WebScaper.GetVerseById(verseId)
-        print(f"{verse.author} {verse.title}")
-else:
-    print(f"Error: {verseRequest}")
+print(verseRequest)
