@@ -18,3 +18,13 @@ class TextFormatter():
                 paragraph[lineIndex] = line
             text[paragraphIndex] = paragraph
         return text
+    def removePunctuation(paragraph):
+        punctuationMarks = [", ", "-", " - ",
+                            ".", "?", "!", "—", " — ", "–", " – ", "-", " - ", " — ", "  ", "   "]
+        for lineIndex in range(len(paragraph)):
+            line = paragraph[lineIndex]
+            for mark in punctuationMarks:
+                while mark in line:
+                    line = line.replace(mark, " ")
+            paragraph[lineIndex] = line.strip()
+        return paragraph

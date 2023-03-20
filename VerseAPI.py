@@ -20,8 +20,9 @@ class WebScaper():
                     for string in str(p).split('<span class="vl">')[1:]:
                         line = str(string).split(
                             '<span class="i1"></span>')[1].split('<span class="i2">')[0].strip()
+                        line = line.replace(u'\xa0', u' ')
                         if line:
-                            paragraph.append(line)
+                            paragraph.append(str(line))
                     if paragraph:
                         text.append(paragraph)
                 text = TextFormatter.removeBrackets(text)
@@ -58,7 +59,3 @@ class WebScaper():
             return WebScaper.GetVerseById(verseId)
         else:
             return verseId
-
-
-verseRequest = WebScaper.GetVerseByText(input())
-print(verseRequest)
