@@ -2,9 +2,9 @@ import requests
 from bs4 import BeautifulSoup
 from duckduckgo_search import ddg
 from data.Verse import Verse
-from textFormatter import TextFormatter
+from textFormatter import removeBrackets
 
-class WebScaper():
+class WebScraper():
     def GetVerseById(queryId):
         try:
             request = requests.get(
@@ -20,12 +20,11 @@ class WebScaper():
                     for string in str(p).split('<span class="vl">')[1:]:
                         line = str(string).split(
                             '<span class="i1"></span>')[1].split('<span class="i2">')[0].strip()
-                        line = line.replace(u'\xa0', u' ')
                         if line:
-                            paragraph.append(str(line))
+                            paragraph.append(line)
                     if paragraph:
                         text.append(paragraph)
-                text = TextFormatter.removeBrackets(text)
+                text = removeBrackets(text)
                 return Verse(author, title, text)
             else:
                 return "Простите, но такого стихотворения нет в базе."
@@ -54,8 +53,8 @@ class WebScaper():
             return "Простите, стихотворение не найдено, пожалуйста, повторите запрос"
     
     def GetVerseByText(queryText):
-        verseId = WebScaper.SearchForId(queryText)
+        verseId = WebScraper.SearchForId(queryText)
         if isinstance(verseId, int):
-            return WebScaper.GetVerseById(verseId)
+            return WebScraper.GetVerseById(verseId)
         else:
             return verseId
