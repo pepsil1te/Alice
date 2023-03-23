@@ -1,6 +1,6 @@
 from alice_scripts import Skill, request, say, suggest
 from VerseAPI import WebScraper
-from textFormatter import removePunctuation
+from textFormatter import removePunctuation, decorateParagraph
 from data.Verse import Verse
 skill = Skill(__name__)
 
@@ -111,11 +111,11 @@ def learnParagraph(paragraph):
             print(f"Повторяйте за мной: {paragraph[line]}")
         requiredLine += paragraph[line] + ' '
         if line != 0:
-            print(
-                f"Теперь соединим эту строчку с предыдущими. Повторяйте: {' '.join(paragraph[:line + 1])}")
+            print("Теперь соединим эту строчку с предыдущими. Повторяйте: ")
+            print(f"{decorateParagraph(paragraph[:line + 1])}")
             while removePunctuation(input()).lower() != removePunctuation(requiredLine).lower():
-                print(
-                    f"Простите, но, похоже, вы допустили ошибку. Давайте заново: {requiredLine}")
+                print("Простите, но, похоже, вы допустили ошибку. Давайте заново:")
+                print(f"{decorateParagraph(paragraph[:line + 1])}")
     return
 
 start()

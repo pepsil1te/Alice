@@ -26,4 +26,8 @@ def removePunctuation(line):
             line = line.replace(mark, " ")
     return line.strip()
 
-print(removePunctuation("я сразу смазал,"))
+def decorateParagraph(paragraph):
+    text = ''
+    for line in paragraph:
+        text += '\n' + line
+    return text.strip()

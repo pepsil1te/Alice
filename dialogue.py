@@ -1,6 +1,6 @@
 from alice_scripts import Skill, request, say, suggest
 from VerseAPI import WebScraper
-from textFormatter import removePunctuation
+from textFormatter import removePunctuation, decorateParagraph
 from data.Verse import Verse
 skill = Skill(__name__)
 
@@ -79,18 +79,14 @@ def learnVerse(verse):
         learnedParagraphs.append(text[paragraph])
         if paragraph != 0:
             chances = 5
-            yield say(
-                f"Теперь соединим этот строфу с предыдущими. Повторяйте: {' '.join(learnedParagraphs)}")
+            yield say(f"Теперь соединим этот строфу с предыдущими. Повторяйте: {' '.join(learnedParagraphs)}")
             while removePunctuation(request.command).lower() != removePunctuation(' '.join(learnedParagraphs)).lower():
-                yield say(
-                    f"Простите, но, похоже, вы допустили ошибку. Давайте заново: {' '.join(learnedParagraphs)}")
+                yield say(f"Простите, но, похоже, вы допустили ошибку. Давайте заново: {' '.join(learnedParagraphs)}")
                 chances -= 1
                 if chances > 0:
-                    yield say(
-                        f"Оставшееся количество попыток повторить все выученные строфы: {chances}. Когда попытки закончатся, придётся заново учить стихотворение")
+                    yield say(f"Оставшееся количество попыток повторить все выученные строфы: {chances}. Когда попытки закончатся, придётся заново учить стихотворение")
                 else:
-                    yield say(
-                        "К сожалению, попытки повторить выученные строфы кончились. Хотите выучить стих заново?")
+                    yield say("К сожалению, попытки повторить выученные строфы кончились. Хотите выучить стих заново?")
                     if "да" in request.command.lower().split():
                         learnVerse(verse)
                     else:
@@ -111,12 +107,11 @@ def learnParagraph(paragraph):
             yield say(f"Повторяйте за мной: {paragraph[line]}")
         requiredLine += paragraph[line] + ' '
         if line != 0:
-            yield say(
-                f"Теперь соединим эту строчку с предыдущими. Повторяйте: {' '.join(paragraph[:line + 1])}")
+            yield say("Теперь соединим эту строчку с предыдущими. Повторяйте: ")
+            yield say(f"{decorateParagraph(paragraph[:line + 1])}")
             while removePunctuation(request.command).lower() != removePunctuation(requiredLine).lower():
-                yield say(
-                    f"Простите, но, похоже, вы допустили ошибку. Давайте заново: {requiredLine}")
+                yield say("Простите, но, похоже, вы допустили ошибку. Давайте заново:")
+                yield say(f"{decorateParagraph(paragraph[:line + 1])}")
     return
-
 
 start()
