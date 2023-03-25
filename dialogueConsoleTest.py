@@ -98,18 +98,15 @@ def learnVerse(verse):
         learnedParagraphs.append(text[paragraph])
         if paragraph != 0:
             chances = 5
-            print(
-                f"Теперь соединим этот строфу с предыдущими. Повторяйте: {' '.join(learnedParagraphs)}")
+            print(f"Теперь соединим этот строфу с предыдущими. Повторяйте: {' '.join(learnedParagraphs)}")
             while formatAsPlainText(handleVoiceInput(input())).lower() != formatAsPlainText(' '.join(learnedParagraphs)).lower():
                 print(
                     f"Простите, но, похоже, вы допустили ошибку. Давайте заново: {' '.join(learnedParagraphs)}")
                 chances -= 1
                 if chances > 0:
-                    print(
-                        f"Оставшееся количество попыток повторить все выученные строфы: {chances}. Когда попытки закончатся, придётся заново учить стихотворение")
+                    print(f"Оставшееся количество попыток повторить все выученные строфы: {chances}. Когда попытки закончатся, придётся заново учить стихотворение")
                 else:
-                    print(
-                        "К сожалению, попытки повторить выученные строфы кончились. Хотите выучить стих заново?")
+                    print("К сожалению, попытки повторить выученные строфы кончились. Хотите выучить стих заново?")
                     if "да" in handleVoiceInput(input()).lower().split():
                         learnVerse(verse)
                     else:

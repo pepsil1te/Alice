@@ -63,13 +63,15 @@ class WebScraper():
             return verseId
     
     def isVerse(verseId):
-        request = requests.get(
-            f'https://ilibrary.ru/text/{verseId}/p.1/index.html')
-        soup = BeautifulSoup(request.content, 'html.parser')
-        for button in soup.find_all('a', class_="bttn"):
-            if removeBracketsFromLine(str(button)) == "о тексте/оглавление":
-                return False
-        for h3 in soup.find_all("h3"):
-            if removeBracketsFromLine(str(h3)).isdigit():
-                return False
-        return True
+        try:
+            request = requests.get(f'https://ilibrary.ru/text/{verseId}/p.1/index.html')
+            soup = BeautifulSoup(request.content, 'html.parser')
+            for button in soup.find_all('a', class_="bttn"):
+                if removeBracketsFromLine(str(button)) == "о тексте/оглавление":
+                    return False
+            for h3 in soup.find_all("h3"):
+                if removeBracketsFromLine(str(h3)).isdigit():
+                    return False
+            return True
+        except:
+            return False
