@@ -2,7 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 from duckduckgo_search import ddg
 from data.Verse import Verse
-from textFormatter import removeBrackets
+from textFormatter import removeBrackets, removeBracketsFromLine
 
 class WebScraper():
     def GetVerseById(queryId):
@@ -15,7 +15,7 @@ class WebScraper():
                 author = '. '.join(fullTitle.split('. ')[0:3])
                 title = '. '.join(fullTitle.split('. ')[3:-1])
                 text = []
-                for p in soup.find_all('span', class_="p"):
+                for p in soup.find_all('div', id="pmt1"):
                     paragraph = []
                     for string in str(p).split('<span class="vl">')[1:]:
                         line = str(string).split(
@@ -37,7 +37,9 @@ class WebScraper():
         verses = []
         for result in results:
             if 'ilibrary.ru' in result['href']:
-                verses.append(int(result['href'].split('/')[4]))
+                verseId = int(result['href'].split('/')[4])
+                if WebScraper.isVerse(verseId):
+                    verses.append(verseId)
         if verses:
             if len(verses) == 1:
                 return verses[0]
@@ -59,3 +61,15 @@ class WebScraper():
             return WebScraper.GetVerseById(verseId)
         else:
             return verseId
+    
+    def isVerse(verseId):
+        request = requests.get(
+            f'https://ilibrary.ru/text/{verseId}/p.1/index.html')
+        soup = BeautifulSoup(request.content, 'html.parser')
+        for button in soup.find_all('a', class_="bttn"):
+            if removeBracketsFromLine(str(button)) == "о тексте/оглавление":
+                return False
+        for h3 in soup.find_all("h3"):
+            if removeBracketsFromLine(str(h3)).isdigit():
+                return False
+        return True
