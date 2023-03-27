@@ -45,12 +45,12 @@ def getVerse(requestedVerse):
         verse = response
     elif isinstance(response, list):
         yield say(f"{readVerseList(response)}\nКакое из этих стихотворений вы хотите выучить? Назовите номер", tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
-        yield from handleVoiceInput
+        yield from handleVoiceInput(request)
         numberOfVerse = inputRequest
         while not ((numberOfVerse.matches(r'\d+') and 0 < int(numberOfVerse.command) <= len(response))):
             yield say(f"{readVerseList(response)}\nПохоже, вы ввели неправильный номер. Какой из этих стихов вы хотите выучить? Назовите только цифру",
                       tts='''<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/1c5585e1-b08a-47ca-ae3e-38ba58d06e3c.opus'>''')
-            yield from handleVoiceInput
+            yield from handleVoiceInput(request)
             numberOfVerse = inputRequest
         verse = WebScraper.GetVerseById(response[int(numberOfVerse.command) - 1])
     else:
@@ -63,7 +63,7 @@ def getVerse(requestedVerse):
         if (verseWasLearned):
             yield say("Отлично, у вас получилось. Хотите попробовать снова?", suggest('Да', 'Нет'), tts="<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/4261b974-0dee-4c50-ad08-9828dcec6b3b.opus'>")
             verseWasLearned = False
-            yield from readVerse(verse)
+            yield from handleVoiceInput(request)
             if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
                 yield say("Хорошо, назовите новое стихотворение!", 'Прекрасно, можете назвать другое стихотворение?', 'Хорошо, давайте выберем другое стихотворение для изучения.', 'Окей, давайте выберем новое стихотворение', tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
                 return
