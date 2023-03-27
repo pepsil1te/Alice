@@ -15,7 +15,7 @@ class WebScraper():
                 author = '. '.join(fullTitle.split('. ')[0:3])
                 title = '. '.join(fullTitle.split('. ')[3:-1])
                 text = []
-                for p in soup.find_all('div', id="pmt1"):
+                for p in str(soup.find_all('span', class_="pmm")).split('<span class="p">'):
                     paragraph = []
                     for string in str(p).split('<span class="vl">')[1:]:
                         line = str(string).split(
@@ -36,10 +36,13 @@ class WebScraper():
         results = ddg(queryText, region='ru-ru', safesearch='Off')
         verses = []
         for result in results:
-            if 'ilibrary.ru' in result['href']:
-                verseId = int(result['href'].split('/')[4])
-                if WebScraper.isVerse(verseId):
-                    verses.append(verseId)
+            if 'ilibrary.ru' in result['href'] and 'text' in result['href']:
+                print(result['href'])
+                verseId = result['href'].split('/')[4]
+                if verseId.isdigit():
+                    verseId = int(verseId)
+                    if WebScraper.isVerse(verseId):
+                        verses.append(verseId)
         if verses:
             if len(verses) == 1:
                 return verses[0]
@@ -53,7 +56,7 @@ class WebScraper():
                 else:
                     return uniqueVerses[0]
         else:
-            return "Простите, стихотворение не найдено, пожалуйста, повторите запрос"
+            return "Простите, стихотворение не найдено, возможно, оно слишком большое, или является частью произведения. Пожалуйста, повторите запрос"
     
     def GetVerseByText(queryText):
         verseId = WebScraper.SearchForId(queryText)
