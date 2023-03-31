@@ -35,14 +35,14 @@ class WebScraper():
     def SearchForId(queryText):
         results = ddg(queryText, region='ru-ru', safesearch='Off')
         verses = []
-        for result in results:
-            if 'ilibrary.ru' in result['href'] and 'text' in result['href']:
-                print(result['href'])
-                verseId = result['href'].split('/')[4]
-                if verseId.isdigit():
-                    verseId = int(verseId)
-                    if WebScraper.isVerse(verseId):
-                        verses.append(verseId)
+        if results:
+            for result in results:
+                if 'ilibrary.ru' in result['href'] and 'text' in result['href']:
+                    verseId = result['href'].split('/')[4]
+                    if verseId.isdigit():
+                        verseId = int(verseId)
+                        if WebScraper.isVerse(verseId):
+                            verses.append(verseId)
         if verses:
             if len(verses) == 1:
                 return verses[0]
