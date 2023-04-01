@@ -14,8 +14,8 @@ def start():
     # Приветствие
     verseWasLearned = False
     inputRequest = ''
-    yield say('Привет! Это навык поможет тебе выучить стихотворение. Назови любое, и мы можем начать! Также можете выбрать из двух предложенных стихов, названия которых я поместил на кнопки', 'Здравствуй! Этот навык поможет тебе выучить стихи. Скажи название любого и мы начинаем! Можете выбрать из двух стихов, предложенных мной, просто нажмите на соответствующую кнопку',
-               'Приветствую! Я могу помочь тебе запомнить любое стихотворение. Назови любое или выбери из предложенных',
+    yield say('Привет! Это навык поможет тебе выучить стихотворение из каталога онлайн библиотеки. Его поиск занимает некоторое время, поэтому просим вас подождать ответа после вашего запроса. Выбери стих, скажи его название, и мы можем начать! Также, если у вашего устройства есть экран, можете выбрать из двух предложенных стихов, названия которых я поместил на кнопки', 'Здравствуй! Этот навык поможет тебе выучить стихи, содержащиеся в базе онлайн библиотеки. Их поиск может занять капельку времени, поэтому просим подождать ответа с сервера после запроса. Скажи название любого и мы начинаем! Можете выбрать из двух стихов, предложенных мной, просто нажмите на соответствующую кнопку, если можете их видеть на экране.',
+               'Приветствую! Я могу помочь тебе запомнить любое стихотворение, но учти, что их поиск может занять некоторое время. Назови любое или выбери из предложенных на кнопках, если у устройства есть экран.',
             suggest('А.С. Пушкин "Я вас любил"', 'Есенин "Береза"'),
             tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
     while(True):
@@ -26,15 +26,16 @@ def start():
 def handleVoiceInput(voiceInput):
     global inputRequest
     word = voiceInput.command.lower()
-    if word in ["помощь", "помоги"]:
+    print(word)
+    if word in ["помощь", "помоги", "команды"]:
         yield say("""На данный момент навык имеет следующие команды: \nСкажите "Помощь", чтобы узнать список доступных комманд\nСкажите "Что ты умеешь" или "Умения", чтобы узнать информацию о навыке\nСкажите "Стоп", чтобы завершить работу навыка и выйти""",
                   """Данный навык содержит команды:\n"Помощь", чтобы узнать команды, доступные в данном навыке\n"Умения", чтобы узнать о навыке больше\n"Стоп", чтобы остановить выполнение навыка""")
         yield from handleVoiceInput(request)
-    elif word in ["что ты умеешь", "умения"]:
+    elif word in ["что ты умеешь", "умения", "о навыке"]:
         yield say('''Привет, я - Мир Стихов, навык для изучения стихов с помощью моей подруги, голосового помощника Алисы. Со мной и моей помощью ты можешь легко выучить стих к уроку литературы, а также прокачать свою память! Просто повторяй его строки за мной''',
                   """Привет, я - навык "Мир Стихов", моя основная цель - помочь тебе выучить стихотворение известных поэтов. Всё, что нужно от тебя - выбрать стихотворение и повторять за мной его строки""")
         yield from handleVoiceInput(request)
-    elif word == "стоп":
+    elif word in ["стоп", "останови", "остановись"]:
         yield say("Спасибо за использование нашего навыка. До свидания!",'Благодарим вас за использование нашего навыка. Хорошего дня!','Было приятно помочь вам. До свидания!', end_session='true')
     else:
         inputRequest = voiceInput
@@ -47,12 +48,12 @@ def getVerse(requestedVerse):
     if isinstance(response, Verse):
         verse = response
     elif isinstance(response, list):
-        yield say(f"{readVerseList(response)}\nКакое из этих стихотворений вы хотите выучить? Назовите номер", tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
+        yield say(f"{readVerseList(response)}\nКакое из этих стихотворений вы хотите выучить? Назовите номер", tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""", suggest=(str(number) for number in range(1, len(response) + 1)))
         yield from handleVoiceInput(request)
         numberOfVerse = inputRequest
         while not ((numberOfVerse.matches(r'\d+') and 0 < int(numberOfVerse.command) <= len(response))):
             yield say(f"{readVerseList(response)}\nПохоже, вы ввели неправильный номер. Какой из этих стихов вы хотите выучить? Назовите только цифру",
-                      tts='''<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/1c5585e1-b08a-47ca-ae3e-38ba58d06e3c.opus'>''')
+                      tts='''<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/1c5585e1-b08a-47ca-ae3e-38ba58d06e3c.opus'>''', suggest=(str(number) for number in range(1, len(response) + 1)))
             yield from handleVoiceInput(request)
             numberOfVerse = inputRequest
         verse = WebScraper.GetVerseById(response[int(numberOfVerse.command) - 1])
@@ -61,17 +62,17 @@ def getVerse(requestedVerse):
         return
     yield from readVerse(verse)
     yield from handleVoiceInput(request)
-    if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
+    if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok', 'поехали', 'хочу', 'хотим', 'можно'):
         yield from learnVerse(verse)
         if (verseWasLearned):
             yield say("Отлично, у вас получилось. Хотите попробовать снова?", suggest('Да', 'Нет'), tts="<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/4261b974-0dee-4c50-ad08-9828dcec6b3b.opus'>")
             verseWasLearned = False
             yield from handleVoiceInput(request)
-            if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
+            if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok', 'поехали', 'хочу', 'хотим', 'можно'):
                 yield say("Хорошо, назовите новое стихотворение!", 'Прекрасно, можете назвать другое стихотворение?', 'Хорошо, давайте выберем другое стихотворение для изучения.', 'Окей, давайте выберем новое стихотворение', tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
                 return
             else:
-                yield say('Ладно, до свидания!', 'Хорошо, пока!','Окей, до встречи!','До скорой встречи!', end_session='true')
+                yield say('Ладно, до свидания!', 'Хорошо, пока!', 'Окей, до встречи!', 'До скорой встречи!', end_session='true')
                 sys.exit()
         else:
             return
@@ -104,7 +105,7 @@ def learnVerse(verse):
         if len(text) != 1 and len(text[paragraph]) != 1:
             yield say(f"Строфа номер {paragraph + 1}\n{decorateParagraph(text[paragraph])}\nНачнём учить строфу?", suggest('Да', 'Нет'), tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")  # варианты
             yield from handleVoiceInput(request)
-            while not (inputRequest).has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
+            while not (inputRequest).has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok', 'поехали', 'начнём', 'начнем', 'можно'):
                 yield say(f"Строфа номер {paragraph + 1}\n{decorateParagraph(text[paragraph])})\nНачнём учить строфу?", suggest('Да', 'Нет'), tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")  # варианты
                 yield from handleVoiceInput(request)
         yield from learnParagraph(text[paragraph])
@@ -156,12 +157,12 @@ def learnVerse(verse):
                     yield say("К сожалению, попытки повторить выученные строфы кончились. Хотите выучить стих заново?",'К сожалению, вы исчерпали свои попытки воспроизвести выученные строфы. Желаете начать заново?', suggest('Да', 'Нет'), 
                               tts='''<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/1c5585e1-b08a-47ca-ae3e-38ba58d06e3c.opus'>''')
                     yield from handleVoiceInput(request)
-                    if (inputRequest).has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
+                    if (inputRequest).has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok', 'можно', 'поехали'):
                         yield from learnVerse(verse)
                     else:
                         yield say("Мне очень жаль, что у вас не получилось выучить. Может, выучим какой нибудь другой стих?",'Мне жаль, что вы не смогли запомнить этот стих. Попробуем с другим?', suggest('Да', 'Нет'))
                         yield from handleVoiceInput(request)
-                        if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok'):
+                        if inputRequest.has_lemmas('да', 'давай', 'хорошо', 'ок', 'ok', 'можно', 'поехали'):
                             yield say("Хорошо, назовите новое стихотворение!", 'Прекрасно, можете назвать другое стихотворение?', 'Хорошо, давайте выберем другое стихотворение для изучения.', 'Окей, давайте выберем новое стихотворение', tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""")
                             return
                         else:
