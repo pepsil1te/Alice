@@ -48,11 +48,12 @@ def getVerse(requestedVerse):
     if isinstance(response, Verse):
         verse = response
     elif isinstance(response, list):
-        yield say(f"{readVerseList(response)}\nКакое из этих стихотворений вы хотите выучить? Назовите номер", tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""", suggest=(str(number) for number in range(1, len(response) + 1)))
+        numbers = [number for number in range(1, len(response) + 1)]
+        yield say(f"{readVerseList(response)}\nКакое из этих стихотворений вы хотите выучить? Назовите номер", suggest(*numbers), tts="""<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/b3773883-8c32-438d-853f-b5a843d60188.opus'>""", suggest=(str(number) for number in range(1, len(response) + 1)))
         yield from handleVoiceInput(request)
         numberOfVerse = inputRequest
         while not ((numberOfVerse.matches(r'\d+') and 0 < int(numberOfVerse.command) <= len(response))):
-            yield say(f"{readVerseList(response)}\nПохоже, вы ввели неправильный номер. Какой из этих стихов вы хотите выучить? Назовите только цифру",
+            yield say(f"{readVerseList(response)}\nПохоже, вы ввели неправильный номер. Какой из этих стихов вы хотите выучить? Назовите только цифру", suggest(*numbers),
                       tts='''<speaker audio='dialogs-upload/56bbf307-260d-4267-bcff-778a59f85ff5/1c5585e1-b08a-47ca-ae3e-38ba58d06e3c.opus'>''', suggest=(str(number) for number in range(1, len(response) + 1)))
             yield from handleVoiceInput(request)
             numberOfVerse = inputRequest
